@@ -2,12 +2,8 @@
 
 import { useMemo, useState } from "react"
 import { Minus, Plus, X } from "lucide-react"
-import {
-  catalogo,
-  categorias,
-  formatARS,
-  proveedores,
-} from "@/lib/catalogo-data"
+import { categorias, formatARS, proveedores } from "@/lib/catalogo-data"
+import { useSession } from "@/lib/session-store"
 import { cn } from "@/lib/utils"
 
 type Alcance = "todos" | "categoria" | "proveedor"
@@ -15,6 +11,7 @@ type Operacion = "aumentar" | "disminuir"
 type Base = "venta" | "costo"
 
 export function BulkPriceModal({ onClose }: { onClose: () => void }) {
+  const { catalogo, aplicarAjusteMasivo } = useSession()
   const [alcance, setAlcance] = useState<Alcance>("todos")
   const [categoria, setCategoria] = useState<string>(categorias[0])
   const [proveedor, setProveedor] = useState<string>(proveedores[0])
@@ -27,7 +24,12 @@ export function BulkPriceModal({ onClose }: { onClose: () => void }) {
     if (alcance === "categoria")
       return catalogo.filter((p) => p.categoria === categoria)
     return catalogo.filter((p) => p.proveedor === proveedor)
-  }, [alcance, categoria, proveedor])
+  }, [alcance, categoria, proveedor, catalogo])
+
+  function aplicar() {
+    aplicarAjusteMasivo({ alcance, categoria, proveedor, operacion, base, porcentaje: pct })
+    onClose()
+  }
 
   const pct = Number.parseFloat(porcentaje) || 0
   const factor = operacion === "aumentar" ? 1 + pct / 100 : 1 - pct / 100
@@ -247,7 +249,7 @@ export function BulkPriceModal({ onClose }: { onClose: () => void }) {
           </button>
           <button
             type="button"
-            onClick={onClose}
+            onClick={aplicar}
             className="rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
           >
             Aplicar cambios

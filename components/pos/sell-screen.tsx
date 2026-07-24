@@ -2,25 +2,21 @@
 
 import { useMemo, useRef, useState } from "react"
 import { Plus, Search } from "lucide-react"
-import {
-  formatARS,
-  productos,
-  type MedioPago,
-  type Producto,
-} from "@/lib/catalogo-data"
+import { formatARS, type MedioPago, type Producto } from "@/lib/catalogo-data"
+import { useSession } from "@/lib/session-store"
 import { CartList, type LineaCarrito } from "@/components/pos/cart-list"
 import { CheckoutPanel } from "@/components/pos/checkout-panel"
 
-// Carrito de ejemplo para que la pantalla no arranque vacía: los primeros
-// productos del catálogo del rubro activo, con cantidades variadas. Al derivarlo
-// del catálogo, funciona igual para drugstore, panadería o cualquier rubro.
+// Cantidades del carrito de ejemplo, para que la pantalla no arranque vacía.
 const cantidadesEjemplo = [2, 1, 3, 1, 1]
-const carritoInicial: LineaCarrito[] = productos
-  .slice(0, 5)
-  .map((p, i) => ({ ...p, cantidad: cantidadesEjemplo[i] ?? 1 }))
 
 export function SellScreen() {
-  const [lineas, setLineas] = useState<LineaCarrito[]>(carritoInicial)
+  const { productos } = useSession()
+  // Carrito de ejemplo: los primeros productos del catálogo del rubro activo.
+  // Al derivarlo del catálogo, funciona igual para drugstore, panadería, etc.
+  const [lineas, setLineas] = useState<LineaCarrito[]>(() =>
+    productos.slice(0, 5).map((p, i) => ({ ...p, cantidad: cantidadesEjemplo[i] ?? 1 })),
+  )
   const [busqueda, setBusqueda] = useState("")
   const [medioPago, setMedioPago] = useState<MedioPago>("efectivo")
   const inputRef = useRef<HTMLInputElement>(null)
@@ -36,7 +32,7 @@ export function SellScreen() {
           p.codigoInterno.toLowerCase().includes(q),
       )
       .slice(0, 6)
-  }, [busqueda])
+  }, [busqueda, productos])
 
   const total = useMemo(
     () => lineas.reduce((acc, l) => acc + l.precio * l.cantidad, 0),

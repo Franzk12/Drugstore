@@ -9,11 +9,13 @@ import {
   Trash2,
   Upload,
 } from "lucide-react"
-import { catalogo, categorias, formatARS } from "@/lib/catalogo-data"
+import { categorias, formatARS } from "@/lib/catalogo-data"
+import { useSession } from "@/lib/session-store"
 import { cn } from "@/lib/utils"
 import { BulkPriceModal } from "@/components/pos/bulk-price-modal"
 
 export function ProductsScreen() {
+  const { catalogo } = useSession()
   const [busqueda, setBusqueda] = useState("")
   const [categoria, setCategoria] = useState("todas")
   // Arranca CERRADO: en la demo primero se muestra la tabla y se pregunta
@@ -32,7 +34,7 @@ export function ProductsScreen() {
         categoria === "todas" || p.categoria === categoria
       return coincideTexto && coincideCategoria
     })
-  }, [busqueda, categoria])
+  }, [busqueda, categoria, catalogo])
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
