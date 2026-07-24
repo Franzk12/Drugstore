@@ -4,7 +4,6 @@ import { useMemo, useRef, useState } from "react"
 import { Plus, Search } from "lucide-react"
 import {
   formatARS,
-  productoPorId,
   productos,
   type MedioPago,
   type Producto,
@@ -12,15 +11,13 @@ import {
 import { CartList, type LineaCarrito } from "@/components/pos/cart-list"
 import { CheckoutPanel } from "@/components/pos/checkout-panel"
 
-// Carrito de ejemplo, referenciado por id (no por índice) para que no se
-// rompa si cambia el orden del catálogo.
-const carritoInicial: LineaCarrito[] = [
-  { ...productoPorId("coca-225"), cantidad: 2 },
-  { ...productoPorId("quilmes-1l"), cantidad: 6 },
-  { ...productoPorId("lays-145"), cantidad: 1 },
-  { ...productoPorId("agua-villa-2l"), cantidad: 3 },
-  { ...productoPorId("alcohol-gel-250"), cantidad: 1 },
-]
+// Carrito de ejemplo para que la pantalla no arranque vacía: los primeros
+// productos del catálogo del rubro activo, con cantidades variadas. Al derivarlo
+// del catálogo, funciona igual para drugstore, panadería o cualquier rubro.
+const cantidadesEjemplo = [2, 1, 3, 1, 1]
+const carritoInicial: LineaCarrito[] = productos
+  .slice(0, 5)
+  .map((p, i) => ({ ...p, cantidad: cantidadesEjemplo[i] ?? 1 }))
 
 export function SellScreen() {
   const [lineas, setLineas] = useState<LineaCarrito[]>(carritoInicial)
