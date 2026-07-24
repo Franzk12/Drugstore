@@ -30,20 +30,20 @@ Abre http://localhost:3000. No necesita internet.
 
 ## 2. Preparar un prospecto nuevo
 
-Cada prospecto es una **branch** de git. Solo cambian **dos archivos**:
-`lib/catalogo-data.ts` (su catálogo) y `lib/config-local.ts` (nombre del local
-+ usuario).
+Cada prospecto es una **branch** de git. Solo se toca el catálogo del rubro y
+`lib/config-local.ts` (rubro + nombre del local + usuario).
 
 ```bash
 git checkout main
 git checkout -b prospecto/san-cayetano      # slug del local
 
-# 1. Cargar SU catálogo desde el CSV/Excel del cliente
-#    → regenera lib/catalogo-data.ts
-#    (script scripts/cargar-catalogo.mjs: PENDIENTE de crear;
-#     por ahora se edita lib/catalogo-data.ts a mano)
+# 1. Cargar SU catálogo desde el CSV/Excel del cliente (exportado a CSV).
+#    Genera lib/catalogos/<rubro>.ts. Lo único obligatorio en el CSV es
+#    nombre, categoría y precio; EAN, código interno y costo se completan solos.
+node scripts/cargar-catalogo.mjs drugstore ~/lista-san-cayetano.csv
 
 # 2. Editar lib/config-local.ts:
+#      rubro: "drugstore"                     # o "panaderia"
 #      nombreLocal: "Drugstore San Cayetano"
 #      usuario: { nombre: "...", rol: "..." }
 
@@ -51,6 +51,22 @@ git commit -am "prospecto: San Cayetano"
 ```
 
 `main` queda siempre como **plantilla limpia**, sin datos de ningún cliente.
+
+### Rubros / inventarios disponibles
+
+El campo `rubro` en `config-local.ts` elige qué catálogo se muestra. Hoy hay dos
+semillas listas en `scripts/catalogos-seed/`:
+
+- **`drugstore`** — 200 productos más vendidos (cigarrillos, bebidas, cervezas,
+  snacks, golosinas, almacén, lácteos, limpieza, perfumería, kiosco).
+- **`panaderia`** — facturas, pan, pastelería, sándwiches, fiambrería y almacén.
+
+Regenerar una semilla tras editar su CSV: `node scripts/cargar-catalogo.mjs <rubro>`
+(sin pasar ruta, usa `scripts/catalogos-seed/<rubro>.csv`).
+
+Para **sumar un rubro nuevo** (ej. `kiosco`, `verduleria`): crear su CSV en
+`scripts/catalogos-seed/`, correr el script, y agregarlo al objeto `rubros` de
+`lib/catalogo-data.ts`.
 
 ---
 
