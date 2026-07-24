@@ -1,0 +1,22 @@
+# dependencias
+/node_modules
+
+# build de Next
+/.next/
+/out/
+/build
+*.tsbuildinfo
+
+# entorno / secretos (por si más adelante hay backend)
+.env
+.env.*
+!.env.example
+
+# Vercel (link local del proyecto)
+.vercel
+
+# sistema
+.DS_Store
+*.pem
+npm-debug.log*
+yarn-error.log*
