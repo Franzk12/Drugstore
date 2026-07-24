@@ -54,6 +54,8 @@ type SessionCtx = {
   ventas: Venta[]
   /** Registra una venta cobrada. */
   registrarVenta: (v: Omit<Venta, "id" | "fecha">) => void
+  /** Cierra la caja: limpia las ventas de la sesión (para arrancar de nuevo). */
+  cerrarCaja: () => void
   /** Monto de apertura de la caja. */
   montoApertura: number
 }
@@ -109,6 +111,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     ])
   }, [])
 
+  const cerrarCaja = useCallback(() => setVentas([]), [])
+
   const value = useMemo(
     () => ({
       catalogo,
@@ -116,9 +120,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       aplicarAjusteMasivo,
       ventas,
       registrarVenta,
+      cerrarCaja,
       montoApertura: MONTO_APERTURA,
     }),
-    [catalogo, productos, aplicarAjusteMasivo, ventas, registrarVenta],
+    [catalogo, productos, aplicarAjusteMasivo, ventas, registrarVenta, cerrarCaja],
   )
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>

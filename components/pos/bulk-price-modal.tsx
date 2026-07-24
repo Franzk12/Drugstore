@@ -227,9 +227,7 @@ export function BulkPriceModal({ onClose }: { onClose: () => void }) {
                 <span
                   className={cn(
                     "font-semibold",
-                    operacion === "aumentar"
-                      ? "text-foreground"
-                      : "text-foreground",
+                    operacion === "aumentar" ? "text-foreground" : "text-success",
                   )}
                 >
                   {formatARS(precioNuevoEjemplo)}

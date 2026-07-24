@@ -43,7 +43,7 @@ export function CheckoutPanel({
   const esEfectivo = medioPago === "efectivo"
 
   return (
-    <div className="flex h-full w-full flex-col border-l border-border bg-card">
+    <div className="flex w-full flex-col border-t border-border bg-card md:h-full md:border-l md:border-t-0">
       <div className="border-b border-border px-6 py-4">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
           Cobro

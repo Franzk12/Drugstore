@@ -36,6 +36,8 @@ export const proveedores: string[] = activo.proveedores
 // así no puede pasar que un producto exista en Productos y no en Vender.
 // ─────────────────────────────────────────────────────────────
 
+// Vista del catálogo que consume el POS. La lista concreta (mutable, por sesión)
+// la deriva y expone el store en lib/session-store.tsx.
 export type Producto = {
   id: string
   nombre: string
@@ -43,22 +45,6 @@ export type Producto = {
   categoria: string
   codigo: string
   codigoInterno: string
-}
-
-export const productos: Producto[] = catalogo.map((p) => ({
-  id: p.id,
-  nombre: p.nombre,
-  precio: p.precioVenta,
-  categoria: p.categoria,
-  codigo: p.ean,
-  codigoInterno: p.codigoInterno,
-}))
-
-/** Busca un producto del POS por id. Útil para armar carritos de ejemplo. */
-export function productoPorId(id: string): Producto {
-  const p = productos.find((x) => x.id === id)
-  if (!p) throw new Error(`Producto no encontrado: ${id}`)
-  return p
 }
 
 export type MedioPago = "efectivo" | "debito" | "credito" | "transferencia"

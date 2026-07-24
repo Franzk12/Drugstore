@@ -15,7 +15,12 @@ const MEDIOS = [
 ] as const
 
 export function CashCloseScreen() {
-  const { ventas, montoApertura } = useSession()
+  const { ventas, montoApertura, cerrarCaja } = useSession()
+  // Resultado del cierre (null = caja abierta). Guarda la diferencia del momento
+  // del cierre, porque al cerrar se limpian las ventas de la sesión.
+  const [cierre, setCierre] = useState<{ diferencia: number; label: string } | null>(
+    null,
+  )
 
   // Todo el arqueo sale de las ventas cobradas en esta sesión (arranca en cero).
   const APERTURA = montoApertura
@@ -228,15 +233,41 @@ export function CashCloseScreen() {
                 </p>
               </div>
 
-              <button
-                type="button"
-                className={cn(
-                  "mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-xl text-lg font-bold transition-colors",
-                  "bg-primary text-primary-foreground hover:bg-primary/90",
-                )}
-              >
-                Cerrar caja
-              </button>
+              {cierre ? (
+                <div className="mt-5 rounded-xl border border-success/30 bg-success/10 p-4 text-center">
+                  <p className="text-sm font-semibold text-success">
+                    Caja cerrada
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Diferencia final: {cierre.diferencia > 0 ? "+" : ""}
+                    {formatARS(cierre.diferencia)} · {cierre.label}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCierre(null)
+                      setContadoStr(String(montoApertura))
+                    }}
+                    className="mt-3 rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+                  >
+                    Abrir nueva caja
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCierre({ diferencia, label: estadoInfo.label })
+                    cerrarCaja()
+                  }}
+                  className={cn(
+                    "mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-xl text-lg font-bold transition-colors",
+                    "bg-primary text-primary-foreground hover:bg-primary/90",
+                  )}
+                >
+                  Cerrar caja
+                </button>
+              )}
             </div>
           </section>
         </div>

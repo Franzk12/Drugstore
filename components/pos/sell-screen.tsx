@@ -10,12 +10,37 @@ import { CheckoutPanel } from "@/components/pos/checkout-panel"
 // Cantidades del carrito de ejemplo, para que la pantalla no arranque vacía.
 const cantidadesEjemplo = [2, 1, 3, 1, 1]
 
+// Elige N productos de categorías distintas para que el carrito de ejemplo se
+// vea variado (y no, p. ej., 5 gaseosas seguidas). Si hay menos categorías que
+// N, completa con los siguientes del catálogo.
+function muestraVariada(productos: Producto[], n: number): Producto[] {
+  const elegidos: Producto[] = []
+  const categorias = new Set<string>()
+  for (const p of productos) {
+    if (!categorias.has(p.categoria)) {
+      categorias.add(p.categoria)
+      elegidos.push(p)
+      if (elegidos.length === n) return elegidos
+    }
+  }
+  for (const p of productos) {
+    if (!elegidos.includes(p)) {
+      elegidos.push(p)
+      if (elegidos.length === n) break
+    }
+  }
+  return elegidos
+}
+
 export function SellScreen() {
   const { productos, registrarVenta } = useSession()
-  // Carrito de ejemplo: los primeros productos del catálogo del rubro activo.
-  // Al derivarlo del catálogo, funciona igual para drugstore, panadería, etc.
+  // Carrito de ejemplo variado, del catálogo del rubro activo. Al derivarlo del
+  // catálogo, funciona igual para drugstore, panadería, etc.
   const [lineas, setLineas] = useState<LineaCarrito[]>(() =>
-    productos.slice(0, 5).map((p, i) => ({ ...p, cantidad: cantidadesEjemplo[i] ?? 1 })),
+    muestraVariada(productos, 5).map((p, i) => ({
+      ...p,
+      cantidad: cantidadesEjemplo[i] ?? 1,
+    })),
   )
   const [busqueda, setBusqueda] = useState("")
   const [medioPago, setMedioPago] = useState<MedioPago>("efectivo")
@@ -77,7 +102,9 @@ export function SellScreen() {
   }
 
   return (
-    <div className="flex flex-1 overflow-hidden">
+    // En mobile se apila (carrito arriba, cobro abajo) y la página scrollea;
+    // desde 768px vuelve a dos columnas con el panel de cobro fijo a la derecha.
+    <div className="flex flex-1 flex-col overflow-y-auto md:flex-row md:overflow-hidden">
       {/* Zona izquierda: búsqueda + carrito */}
       <div className="flex min-w-0 flex-1 flex-col p-4">
         <form onSubmit={onSubmit} className="relative">
@@ -122,7 +149,7 @@ export function SellScreen() {
           )}
         </form>
 
-        <div className="mt-4 flex flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <div className="mt-4 flex min-h-[16rem] flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm md:min-h-0">
           <CartList
             lineas={lineas}
             onCantidad={cambiarCantidad}
@@ -131,10 +158,9 @@ export function SellScreen() {
         </div>
       </div>
 
-      {/* Zona derecha: cobro */}
-      {/* El panel de cobro se muestra desde 768px: si se sube el zoom del
-          navegador (típico al mostrarle la pantalla a alguien), no desaparece. */}
-      <div className="hidden w-80 shrink-0 md:block xl:w-96">
+      {/* Zona derecha (o inferior en mobile): cobro. Siempre visible para poder
+          cobrar en cualquier tamaño de pantalla. */}
+      <div className="w-full shrink-0 md:w-80 xl:w-96">
         <CheckoutPanel
           total={total}
           cantidadItems={cantidadItems}
