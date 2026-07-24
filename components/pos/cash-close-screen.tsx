@@ -1,34 +1,40 @@
 "use client"
 
 import { useState } from "react"
-import {
-  Banknote,
-  Clock,
-  CreditCard,
-  Landmark,
-  Receipt,
-  Smartphone,
-} from "lucide-react"
+import { Banknote, Clock, CreditCard, Landmark, Receipt } from "lucide-react"
 import { formatARS } from "@/lib/catalogo-data"
+import { useSession } from "@/lib/session-store"
 import { cn } from "@/lib/utils"
 import { configLocal } from "@/lib/config-local"
 
-const APERTURA = 10000
-const VENTAS_SESION = 47
-
-const desglose = [
-  { medio: "Efectivo", monto: 145300, icon: Banknote },
-  { medio: "Débito", monto: 88500, icon: CreditCard },
-  { medio: "Crédito", monto: 52000, icon: Smartphone },
-  { medio: "Transferencia", monto: 34200, icon: Landmark },
+const MEDIOS = [
+  { id: "efectivo", medio: "Efectivo", icon: Banknote },
+  { id: "debito", medio: "Débito", icon: CreditCard },
+  { id: "credito", medio: "Crédito", icon: CreditCard },
+  { id: "transferencia", medio: "Transferencia", icon: Landmark },
 ] as const
 
-const VENTAS_EFECTIVO = 145300
-const TOTAL_VENDIDO = desglose.reduce((acc, d) => acc + d.monto, 0)
-const ESPERADO = APERTURA + VENTAS_EFECTIVO
-
 export function CashCloseScreen() {
-  const [contadoStr, setContadoStr] = useState(String(ESPERADO))
+  const { ventas, montoApertura } = useSession()
+
+  // Todo el arqueo sale de las ventas cobradas en esta sesión (arranca en cero).
+  const APERTURA = montoApertura
+  const VENTAS_SESION = ventas.length
+  const desglose = MEDIOS.map((m) => ({
+    ...m,
+    monto: ventas
+      .filter((v) => v.medioPago === m.id)
+      .reduce((acc, v) => acc + v.total, 0),
+  }))
+  const TOTAL_VENDIDO = ventas.reduce((acc, v) => acc + v.total, 0)
+  const VENTAS_EFECTIVO = ventas
+    .filter((v) => v.medioPago === "efectivo")
+    .reduce((acc, v) => acc + v.total, 0)
+  const ESPERADO = APERTURA + VENTAS_EFECTIVO
+
+  // El efectivo contado arranca igual al esperado (diferencia $0); el cajero
+  // lo edita al hacer el arqueo real.
+  const [contadoStr, setContadoStr] = useState(() => String(ESPERADO))
 
   const contado = Number.parseFloat(contadoStr)
   const tieneValor = contadoStr !== "" && !Number.isNaN(contado)

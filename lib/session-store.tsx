@@ -16,8 +16,15 @@ import {
   useState,
   type ReactNode,
 } from "react"
-import { catalogo as catalogoInicial, type Producto } from "@/lib/catalogo-data"
+import {
+  catalogo as catalogoInicial,
+  type MedioPago,
+  type Producto,
+} from "@/lib/catalogo-data"
 import type { ProductoCatalogo } from "@/lib/catalogos/tipos"
+
+/** Monto con el que se abre la caja al arrancar la jornada (demo). */
+export const MONTO_APERTURA = 10000
 
 export type AjusteMasivo = {
   alcance: "todos" | "categoria" | "proveedor"
@@ -28,6 +35,14 @@ export type AjusteMasivo = {
   porcentaje: number
 }
 
+export type Venta = {
+  id: string
+  total: number
+  medioPago: MedioPago
+  cantidadItems: number
+  fecha: Date
+}
+
 type SessionCtx = {
   /** Catálogo completo y mutable de la sesión. */
   catalogo: ProductoCatalogo[]
@@ -35,6 +50,12 @@ type SessionCtx = {
   productos: Producto[]
   /** Aplica un ajuste porcentual y devuelve cuántos productos cambió. */
   aplicarAjusteMasivo: (a: AjusteMasivo) => number
+  /** Ventas hechas en esta sesión (arrancan en cero). */
+  ventas: Venta[]
+  /** Registra una venta cobrada. */
+  registrarVenta: (v: Omit<Venta, "id" | "fecha">) => void
+  /** Monto de apertura de la caja. */
+  montoApertura: number
 }
 
 const Ctx = createContext<SessionCtx | null>(null)
@@ -79,9 +100,25 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     [catalogo],
   )
 
+  const [ventas, setVentas] = useState<Venta[]>([])
+
+  const registrarVenta = useCallback((v: Omit<Venta, "id" | "fecha">) => {
+    setVentas((prev) => [
+      ...prev,
+      { ...v, id: crypto.randomUUID(), fecha: new Date() },
+    ])
+  }, [])
+
   const value = useMemo(
-    () => ({ catalogo, productos, aplicarAjusteMasivo }),
-    [catalogo, productos, aplicarAjusteMasivo],
+    () => ({
+      catalogo,
+      productos,
+      aplicarAjusteMasivo,
+      ventas,
+      registrarVenta,
+      montoApertura: MONTO_APERTURA,
+    }),
+    [catalogo, productos, aplicarAjusteMasivo, ventas, registrarVenta],
   )
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>

@@ -11,7 +11,7 @@ import { CheckoutPanel } from "@/components/pos/checkout-panel"
 const cantidadesEjemplo = [2, 1, 3, 1, 1]
 
 export function SellScreen() {
-  const { productos } = useSession()
+  const { productos, registrarVenta } = useSession()
   // Carrito de ejemplo: los primeros productos del catálogo del rubro activo.
   // Al derivarlo del catálogo, funciona igual para drugstore, panadería, etc.
   const [lineas, setLineas] = useState<LineaCarrito[]>(() =>
@@ -141,6 +141,7 @@ export function SellScreen() {
           medioPago={medioPago}
           onMedioPago={setMedioPago}
           onCobrar={() => {
+            registrarVenta({ total, medioPago, cantidadItems })
             setLineas([])
             inputRef.current?.focus()
           }}
