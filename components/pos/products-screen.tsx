@@ -9,7 +9,7 @@ import {
   Trash2,
   Upload,
 } from "lucide-react"
-import { categorias, formatARS } from "@/lib/catalogo-data"
+import { categorias, formatARS, formatKg } from "@/lib/catalogo-data"
 import { useSession } from "@/lib/session-store"
 import { cn } from "@/lib/utils"
 import { BulkPriceModal } from "@/components/pos/bulk-price-modal"
@@ -141,10 +141,14 @@ export function ProductsScreen() {
                       {p.categoria}
                     </td>
                     <td className="px-4 py-3 text-right font-mono tabular-nums text-muted-foreground">
-                      {formatARS(p.precioCosto)}
+                      {p.unidadVenta === "kg"
+                        ? `${formatARS(p.precioCosto)}/kg`
+                        : formatARS(p.precioCosto)}
                     </td>
                     <td className="px-4 py-3 text-right font-mono font-semibold tabular-nums text-foreground">
-                      {formatARS(p.precioVenta)}
+                      {p.unidadVenta === "kg"
+                        ? `${formatARS(p.precioVenta)}/kg`
+                        : formatARS(p.precioVenta)}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-2">
@@ -161,7 +165,7 @@ export function ProductsScreen() {
                               : "text-foreground",
                           )}
                         >
-                          {p.stock}
+                          {p.unidadVenta === "kg" ? formatKg(p.stock) : p.stock}
                         </span>
                       </div>
                     </td>

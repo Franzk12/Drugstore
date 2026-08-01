@@ -61,11 +61,12 @@ export function formatARS(valor: number): string {
   }).format(valor)
 }
 
-/** Formatea un peso en kg con coma decimal (es-AR). Ej: 0.75 → "0,750 kg". */
+/** Formatea un peso en kg con coma decimal (es-AR), sin forzar decimales.
+ *  Ej: 32 → "32 kg"; 0.75 → "0,75 kg". */
 export function formatKg(kg: number): string {
   return (
     new Intl.NumberFormat("es-AR", {
-      minimumFractionDigits: 3,
+      minimumFractionDigits: 0,
       maximumFractionDigits: 3,
     }).format(kg) + " kg"
   )
