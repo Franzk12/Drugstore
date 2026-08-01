@@ -8,6 +8,8 @@ export type ProductoCatalogo = {
   codigoInterno: string
   categoria: string
   proveedor: string
+  /** Forma de venta: por unidad o por kilo. Para "kg", precio/stock son por kg. */
+  unidadVenta: "unidad" | "kg"
   precioCosto: number
   precioVenta: number
   stock: number

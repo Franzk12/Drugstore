@@ -55,6 +55,8 @@ const MARGENES = {
   pasteleria: 0.60,
   sandwiches: 0.50,
   fiambreria: 0.30,
+  verduras: 0.35,
+  frutas: 0.35,
 }
 const MARGEN_DEFAULT = 0.30
 
@@ -62,7 +64,7 @@ const STOCK_MIN = {
   bebidas: 12, "cervezas y vinos": 8, cigarrillos: 10, snacks: 10,
   golosinas: 15, almacen: 12, lacteos: 8, limpieza: 8, perfumeria: 6,
   kiosco: 8, panaderia: 10, facturas: 10, pasteleria: 10, sandwiches: 6,
-  fiambreria: 4,
+  fiambreria: 4, verduras: 8, frutas: 8,
 }
 const STOCK_MIN_DEFAULT = 6
 
@@ -128,6 +130,7 @@ const ALIAS = {
   codigoInterno: ["codigointerno", "codigo interno", "sku", "interno"],
   stock: ["stock", "cantidad", "existencia"],
   stockMinimo: ["stockminimo", "stock minimo", "minimo", "min"],
+  unidadVenta: ["unidadventa", "unidad de venta", "forma de venta", "por"],
 }
 
 const filas = parseCSV(readFileSync(csvPath, "utf8"))
@@ -179,6 +182,11 @@ for (const fila of filas) {
   let stock = parseNumero(get(fila, "stock"))
   if (stock == null) stock = stockMinimo * 3 + (hash(nombre) % 25) // saludable y variado
 
+  const unidadRaw = clave(get(fila, "unidadVenta"))
+  const unidadVenta = ["kg", "peso", "gramo", "gramos", "g", "por peso"].includes(unidadRaw)
+    ? "kg"
+    : "unidad"
+
   let id = slug(nombre)
   const base = id
   let k = 2
@@ -187,6 +195,7 @@ for (const fila of filas) {
 
   productos.push({
     id, nombre, ean, codigoInterno, categoria, proveedor,
+    unidadVenta,
     precioCosto, precioVenta, stock, stockMinimo,
   })
 }

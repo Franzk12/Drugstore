@@ -15,12 +15,14 @@ import { configLocal } from "@/lib/config-local"
 import type { ProductoCatalogo } from "@/lib/catalogos/tipos"
 import * as drugstore from "@/lib/catalogos/drugstore"
 import * as panaderia from "@/lib/catalogos/panaderia"
+import * as verduleria from "@/lib/catalogos/verduleria"
 
 export type { ProductoCatalogo }
 
 const rubros = {
   drugstore,
   panaderia,
+  verduleria,
 } as const
 
 export type Rubro = keyof typeof rubros
