@@ -2,11 +2,17 @@
 
 import { useState } from "react"
 import { Menu, ShoppingCart } from "lucide-react"
-import { AppSidebar, type View } from "@/components/pos/app-sidebar"
+import {
+  AppSidebar,
+  navItems,
+  seccionesDisponibles,
+  type View,
+} from "@/components/pos/app-sidebar"
 import { ScreenHeader } from "@/components/pos/screen-header"
 import { SellScreen } from "@/components/pos/sell-screen"
 import { ProductsScreen } from "@/components/pos/products-screen"
 import { CashCloseScreen } from "@/components/pos/cash-close-screen"
+import { ComingSoonScreen } from "@/components/pos/coming-soon-screen"
 import { SessionProvider } from "@/lib/session-store"
 
 export default function Page() {
@@ -66,6 +72,11 @@ export default function Page() {
           )}
           {view === "productos" && <ProductsScreen />}
           {view === "caja" && <CashCloseScreen />}
+          {!seccionesDisponibles.includes(view) && (
+            <ComingSoonScreen
+              nombre={navItems.find((i) => i.id === view)?.label ?? "Sección"}
+            />
+          )}
         </main>
       </div>
     </SessionProvider>

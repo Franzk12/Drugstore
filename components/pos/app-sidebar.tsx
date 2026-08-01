@@ -5,6 +5,7 @@ import {
   Boxes,
   ChevronLeft,
   LayoutDashboard,
+  Lock,
   LogOut,
   Package,
   Settings,
@@ -16,24 +17,25 @@ import {
 import { cn } from "@/lib/utils"
 import { configLocal, inicialUsuario } from "@/lib/config-local"
 
-export type View = "vender" | "productos" | "caja"
+// `disponible: false` = sección todavía no construida → abre un placeholder con
+// candado en vez de un clic muerto.
+export const navItems = [
+  { id: "vender", label: "Vender", icon: ShoppingCart, disponible: true },
+  { id: "panel", label: "Panel", icon: LayoutDashboard, disponible: false },
+  { id: "productos", label: "Productos", icon: Package, disponible: true },
+  { id: "stock", label: "Stock", icon: Boxes, disponible: false },
+  { id: "caja", label: "Caja", icon: Wallet, disponible: true },
+  { id: "reportes", label: "Reportes", icon: BarChart3, disponible: false },
+  { id: "clientes", label: "Clientes", icon: Users, disponible: false },
+  { id: "configuracion", label: "Configuración", icon: Settings, disponible: false },
+] as const
 
-type NavItem = {
-  id: string
-  label: string
-  icon: React.ElementType
-}
+export type View = (typeof navItems)[number]["id"]
 
-const navItems: NavItem[] = [
-  { id: "vender", label: "Vender", icon: ShoppingCart },
-  { id: "panel", label: "Panel", icon: LayoutDashboard },
-  { id: "productos", label: "Productos", icon: Package },
-  { id: "stock", label: "Stock", icon: Boxes },
-  { id: "caja", label: "Caja", icon: Wallet },
-  { id: "reportes", label: "Reportes", icon: BarChart3 },
-  { id: "clientes", label: "Clientes", icon: Users },
-  { id: "configuracion", label: "Configuración", icon: Settings },
-]
+/** Secciones que tienen pantalla real (el resto muestra el placeholder). */
+export const seccionesDisponibles: View[] = navItems
+  .filter((i) => i.disponible)
+  .map((i) => i.id)
 
 export function AppSidebar({
   collapsed,
@@ -110,15 +112,11 @@ export function AppSidebar({
       <nav className="flex-1 space-y-1 overflow-y-auto p-2">
         {navItems.map((item) => {
           const isActive = item.id === activeView
-          const isNavigable =
-            item.id === "vender" ||
-            item.id === "productos" ||
-            item.id === "caja"
           return (
             <button
               key={item.id}
               type="button"
-              onClick={() => isNavigable && onNavigate(item.id as View)}
+              onClick={() => onNavigate(item.id)}
               aria-current={isActive ? "page" : undefined}
               title={compacto ? item.label : undefined}
               className={cn(
@@ -131,6 +129,9 @@ export function AppSidebar({
             >
               <item.icon className="size-5 shrink-0" />
               {!compacto && <span className="truncate">{item.label}</span>}
+              {!compacto && !item.disponible && (
+                <Lock className="ml-auto size-3.5 shrink-0 text-sidebar-foreground/40" />
+              )}
             </button>
           )
         })}
