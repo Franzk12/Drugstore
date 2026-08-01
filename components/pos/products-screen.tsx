@@ -106,8 +106,10 @@ export function ProductsScreen() {
 
       {/* Tabla */}
       <div className="flex-1 overflow-auto p-6">
-        <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-          <table className="w-full border-collapse text-sm">
+        {/* overflow-x-auto: en pantallas chicas la tabla scrollea horizontal en
+            vez de recortar las columnas (precio/stock/acciones). */}
+        <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
+          <table className="w-full min-w-[46rem] border-collapse text-sm">
             <thead>
               <tr className="border-b border-border bg-secondary/60 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 <th className="px-4 py-3">Nombre</th>
