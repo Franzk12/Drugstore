@@ -11,7 +11,7 @@
 export const configLocal = {
   /**
    * Rubro / inventario que se muestra. Elige cuál de los catálogos de
-   * lib/catalogos/ se usa. Valores disponibles hoy: "drugstore" | "panaderia".
+   * lib/catalogos/ se usa. Valores hoy: "drugstore" | "panaderia" | "verduleria".
    * (Para sumar otro rubro, ver lib/catalogo-data.ts.)
    */
   rubro: "drugstore",
