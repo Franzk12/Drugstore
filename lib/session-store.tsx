@@ -80,6 +80,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         categoria: p.categoria,
         codigo: p.ean,
         codigoInterno: p.codigoInterno,
+        unidadVenta: p.unidadVenta,
       })),
     [catalogo],
   )
