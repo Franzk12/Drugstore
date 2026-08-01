@@ -45,6 +45,10 @@ export function SellScreen() {
   const [busqueda, setBusqueda] = useState("")
   const [medioPago, setMedioPago] = useState<MedioPago>("efectivo")
   const inputRef = useRef<HTMLInputElement>(null)
+  // Producto por kg esperando que se ingrese el peso (null = no hay prompt).
+  const [pendiente, setPendiente] = useState<Producto | null>(null)
+  const [pesoStr, setPesoStr] = useState("")
+  const pesoRef = useRef<HTMLInputElement>(null)
 
   const sugerencias = useMemo(() => {
     const q = busqueda.trim().toLowerCase()
@@ -64,11 +68,22 @@ export function SellScreen() {
     [lineas],
   )
   const cantidadItems = useMemo(
-    () => lineas.reduce((acc, l) => acc + l.cantidad, 0),
+    () =>
+      lineas.reduce(
+        (acc, l) => acc + (l.unidadVenta === "unidad" ? l.cantidad : 1),
+        0,
+      ),
     [lineas],
   )
 
   function agregar(producto: Producto) {
+    if (producto.unidadVenta === "kg") {
+      setPendiente(producto)
+      setPesoStr("")
+      setBusqueda("")
+      setTimeout(() => pesoRef.current?.focus(), 0)
+      return
+    }
     setLineas((prev) => {
       const existe = prev.find((l) => l.id === producto.id)
       if (existe) {
@@ -79,6 +94,26 @@ export function SellScreen() {
       return [...prev, { ...producto, cantidad: 1 }]
     })
     setBusqueda("")
+    inputRef.current?.focus()
+  }
+
+  const pesoNum = Number.parseFloat(pesoStr.replace(",", "."))
+  const pesoValido = pesoStr !== "" && Number.isFinite(pesoNum) && pesoNum > 0
+
+  function confirmarPeso() {
+    if (!pendiente || !pesoValido) return
+    const prod = pendiente
+    setLineas((prev) => {
+      const existe = prev.find((l) => l.id === prod.id)
+      if (existe) {
+        return prev.map((l) =>
+          l.id === prod.id ? { ...l, cantidad: l.cantidad + pesoNum } : l,
+        )
+      }
+      return [...prev, { ...prod, cantidad: pesoNum }]
+    })
+    setPendiente(null)
+    setPesoStr("")
     inputRef.current?.focus()
   }
 
@@ -140,7 +175,9 @@ export function SellScreen() {
                       </span>
                     </span>
                     <span className="font-mono text-sm font-semibold tabular-nums text-popover-foreground">
-                      {formatARS(p.precio)}
+                      {p.unidadVenta === "kg"
+                        ? `${formatARS(p.precio)}/kg`
+                        : formatARS(p.precio)}
                     </span>
                   </button>
                 </li>
@@ -148,6 +185,49 @@ export function SellScreen() {
             </ul>
           )}
         </form>
+
+        {pendiente && (
+          <div className="mt-3 rounded-xl border border-primary/40 bg-accent/40 p-4">
+            <p className="text-sm font-medium text-foreground">{pendiente.nombre}</p>
+            <div className="mt-2 flex flex-wrap items-center gap-3">
+              <div className="relative">
+                <input
+                  ref={pesoRef}
+                  type="number"
+                  inputMode="decimal"
+                  min={0}
+                  step="any"
+                  value={pesoStr}
+                  onChange={(e) => setPesoStr(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") confirmarPeso()
+                    if (e.key === "Escape") setPendiente(null)
+                  }}
+                  placeholder="0,000"
+                  aria-label="Peso en kilos"
+                  className="h-12 w-32 rounded-lg border border-input bg-background px-3 text-right font-mono text-xl font-bold tabular-nums text-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
+                />
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-muted-foreground">
+                  kg
+                </span>
+              </div>
+              <span className="text-sm text-muted-foreground">
+                × {formatARS(pendiente.precio)}/kg ={" "}
+                <span className="font-mono font-semibold text-foreground">
+                  {formatARS(Math.round(pendiente.precio * (pesoValido ? pesoNum : 0)))}
+                </span>
+              </span>
+              <button
+                type="button"
+                onClick={confirmarPeso}
+                disabled={!pesoValido}
+                className="ml-auto rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-40"
+              >
+                Agregar
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="mt-4 flex min-h-[16rem] flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm md:min-h-0">
           <CartList
