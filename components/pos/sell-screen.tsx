@@ -127,6 +127,14 @@ export function SellScreen() {
     )
   }
 
+  function cambiarPeso(id: string, kg: number) {
+    setLineas((prev) =>
+      prev
+        .map((l) => (l.id === id ? { ...l, cantidad: kg } : l))
+        .filter((l) => l.cantidad > 0),
+    )
+  }
+
   function quitar(id: string) {
     setLineas((prev) => prev.filter((l) => l.id !== id))
   }
@@ -234,6 +242,7 @@ export function SellScreen() {
             lineas={lineas}
             onCantidad={cambiarCantidad}
             onQuitar={quitar}
+            onPeso={cambiarPeso}
           />
         </div>
       </div>

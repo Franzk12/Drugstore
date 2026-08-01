@@ -10,10 +10,12 @@ export function CartList({
   lineas,
   onCantidad,
   onQuitar,
+  onPeso,
 }: {
   lineas: LineaCarrito[]
   onCantidad: (id: string, delta: number) => void
   onQuitar: (id: string) => void
+  onPeso: (id: string, kg: number) => void
 }) {
   if (lineas.length === 0) {
     return (
@@ -58,26 +60,46 @@ export function CartList({
               </p>
             </div>
 
-            <div className="flex w-32 items-center justify-center gap-1">
-              <QtyButton
-                aria-label={`Restar una unidad de ${linea.nombre}`}
-                onClick={() => onCantidad(linea.id, -1)}
-              >
-                <Minus className="size-4" />
-              </QtyButton>
-              <span className="w-8 text-center font-mono text-sm font-semibold tabular-nums text-foreground">
-                {linea.cantidad}
-              </span>
-              <QtyButton
-                aria-label={`Sumar una unidad de ${linea.nombre}`}
-                onClick={() => onCantidad(linea.id, 1)}
-              >
-                <Plus className="size-4" />
-              </QtyButton>
-            </div>
+            {linea.unidadVenta === "kg" ? (
+              <div className="flex w-32 items-center justify-center gap-1">
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  min={0}
+                  step="any"
+                  value={linea.cantidad}
+                  onChange={(e) =>
+                    onPeso(linea.id, Number.parseFloat(e.target.value) || 0)
+                  }
+                  aria-label={`Peso en kg de ${linea.nombre}`}
+                  className="h-8 w-20 rounded-md border border-border bg-background px-2 text-right font-mono text-sm tabular-nums text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
+                />
+                <span className="text-xs text-muted-foreground">kg</span>
+              </div>
+            ) : (
+              <div className="flex w-32 items-center justify-center gap-1">
+                <QtyButton
+                  aria-label={`Restar una unidad de ${linea.nombre}`}
+                  onClick={() => onCantidad(linea.id, -1)}
+                >
+                  <Minus className="size-4" />
+                </QtyButton>
+                <span className="w-8 text-center font-mono text-sm font-semibold tabular-nums text-foreground">
+                  {linea.cantidad}
+                </span>
+                <QtyButton
+                  aria-label={`Sumar una unidad de ${linea.nombre}`}
+                  onClick={() => onCantidad(linea.id, 1)}
+                >
+                  <Plus className="size-4" />
+                </QtyButton>
+              </div>
+            )}
 
             <span className="w-28 text-right font-mono text-sm tabular-nums text-muted-foreground">
-              {formatARS(linea.precio)}
+              {linea.unidadVenta === "kg"
+                ? `${formatARS(linea.precio)}/kg`
+                : formatARS(linea.precio)}
             </span>
             <span className="w-28 text-right font-mono text-sm font-semibold tabular-nums text-foreground">
               {formatARS(linea.precio * linea.cantidad)}
