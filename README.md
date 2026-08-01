@@ -60,6 +60,8 @@ semillas listas en `scripts/catalogos-seed/`:
 - **`drugstore`** — 200 productos más vendidos (cigarrillos, bebidas, cervezas,
   snacks, golosinas, almacén, lácteos, limpieza, perfumería, kiosco).
 - **`panaderia`** — facturas, pan, pastelería, sándwiches, fiambrería y almacén.
+- **`verduleria`** — frutas y verduras **por peso** (precio por kg). Ver también
+  la nota de "venta por peso" en `docs/superpowers/specs/`.
 
 Regenerar una semilla tras editar su CSV: `node scripts/cargar-catalogo.mjs <rubro>`
 (sin pasar ruta, usa `scripts/catalogos-seed/<rubro>.csv`).
@@ -70,29 +72,40 @@ Para **sumar un rubro nuevo** (ej. `kiosco`, `verduleria`): crear su CSV en
 
 ---
 
-## 3. Deploy — para las dos semanas de prueba
+## 3. Deploy — Netlify (sitio estático)
 
-La Vercel CLI ya está logueada (`vercel whoami`). **Un proyecto Vercel por
-prospecto**, cada uno con su URL gratis: `san-cayetano.vercel.app`.
+La app compila como **sitio estático** (`output: "export"` → carpeta `out/`),
+así que se hostea en Netlify (o cualquier hosting estático). El repo está en
+GitHub: `https://github.com/Franzk12/Drugstore`.
 
-Estando **en la branch del prospecto**:
+### Una vez (conectar el repo)
+
+1. En [app.netlify.com](https://app.netlify.com) → **Add new site → Import from
+   GitHub** → elegir el repo `Franzk12/Drugstore`.
+2. Netlify lee `netlify.toml` solo: build `npm run build`, publish `out/`.
+   Confirmá y **Deploy**. Queda en `https://<algo>.netlify.app`
+   (renombrable en Site settings → Change site name).
+
+Desde ahí, **cada `git push` a `main` redeploya solo**.
+
+### Un prospecto = una branch
+
+Cada prospecto cambia solo su catálogo + `lib/config-local.ts`:
 
 ```bash
-vercel link          # crear/elegir el proyecto; nombre = slug del local
-vercel --prod        # despliega → https://<slug>.vercel.app
+git checkout -b prospecto/san-cayetano
+node scripts/cargar-catalogo.mjs <rubro> ~/lista-cliente.csv   # su catálogo
+# editar lib/config-local.ts (rubro + nombreLocal + usuario)
+git commit -am "prospecto: San Cayetano"
+git push -u origin prospecto/san-cayetano
 ```
 
-Para volver a desplegar tras un cambio: `vercel --prod` otra vez.
+En Netlify, cada branch genera un **deploy preview** con su propia URL
+(`prospecto-san-cayetano--<sitio>.netlify.app`), o creás un site aparte por
+prospecto apuntado a su branch si querés una URL más linda por local.
 
-> **Un prospecto a la vez.** El link al proyecto se guarda en `.vercel/`
-> (ignorado por git). Al pasar a otro prospecto, `vercel link` de nuevo para
-> apuntar a su proyecto.
-
-### Opcional: auto-deploy con GitHub
-
-Si más adelante querés que cada `git push` despliegue solo, conectás el repo en
-el dashboard de Vercel (Import Project) y fijás la branch de producción de cada
-proyecto a su `prospecto/<slug>`. No hace falta para el flujo de arriba.
+> **Probar el build estático localmente:** `npm run build` y servís `out/` con
+> cualquier server estático (ej. `npx serve out`).
 
 ---
 

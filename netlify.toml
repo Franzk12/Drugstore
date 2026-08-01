@@ -1,0 +1,9 @@
+# Deploy en Netlify — sitio estático generado por Next (output: "export").
+# Netlify corre el build y publica la carpeta out/.
+
+[build]
+  command = "npm run build"
+  publish = "out"
+
+[build.environment]
+  NODE_VERSION = "20"

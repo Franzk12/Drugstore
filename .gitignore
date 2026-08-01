@@ -12,8 +12,12 @@
 .env.*
 !.env.example
 
-# Vercel (link local del proyecto)
+# link local de hosting
 .vercel
+.netlify
+
+# grafo de conocimiento (graphify)
+graphify-out/
 
 # sistema
 .DS_Store
