@@ -88,21 +88,28 @@ GitHub: `https://github.com/Franzk12/Drugstore`.
 
 Desde ahí, **cada `git push` a `main` redeploya solo**.
 
-### Un prospecto = una branch
+### Un prospecto = una branch (un comando)
 
-Cada prospecto cambia solo su catálogo + `lib/config-local.ts`:
+Preparar la demo de un local nuevo es **un solo comando** (crea la branch, carga
+su catálogo, setea su nombre y commitea):
 
 ```bash
-git checkout -b prospecto/san-cayetano
-node scripts/cargar-catalogo.mjs <rubro> ~/lista-cliente.csv   # su catálogo
-# editar lib/config-local.ts (rubro + nombreLocal + usuario)
-git commit -am "prospecto: San Cayetano"
+node scripts/nuevo-prospecto.mjs \
+  --slug san-cayetano \
+  --rubro drugstore \
+  --local "Drugstore San Cayetano" \
+  --cajero "Franco" \
+  --csv ~/lista-precios.csv        # opcional: sin --csv usa el catálogo semilla
+
 git push -u origin prospecto/san-cayetano
 ```
 
-En Netlify, cada branch genera un **deploy preview** con su propia URL
-(`prospecto-san-cayetano--<sitio>.netlify.app`), o creás un site aparte por
-prospecto apuntado a su branch si querés una URL más linda por local.
+Volver a la plantilla limpia: `git switch main`.
+
+**En Netlify** (una vez): Site settings → Build & deploy → **Branch deploys → All**.
+A partir de ahí, cada `git push` de una branch `prospecto/<slug>` queda auto en
+`https://prospecto-<slug>--<sitio>.netlify.app`. Si querés una URL más linda por
+local (`sancayetano.netlify.app`), creás un site aparte apuntado a esa branch.
 
 > **Probar el build estático localmente:** `npm run build` y servís `out/` con
 > cualquier server estático (ej. `npx serve out`).
